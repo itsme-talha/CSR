@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+/* 1. Default Theme (Margalla Mist) */
+:root, [data-theme="margalla-mist"] {
+  --background: #ffffff;
+  --foreground: #171717;
+  --color-brand-light: #E6E8F0;
+  --color-brand-muted: #DDD6CE;
+  --color-brand-primary: #BFA6A0;
+  --color-brand-dark: #18143C;
+  --color-brand-action: #C2185B;
+}
+
+/* 2. Institutional Blue Theme */
+[data-theme="institutional-blue"] {
+  --background: #F4F7FA;
+  --foreground: #0F172A;
+  --color-brand-light: #E0E7FF;
+  --color-brand-muted: #CBD5E1;
+  --color-brand-primary: #93C5FD;
+  --color-brand-dark: #1E3A8A;
+  --color-brand-action: #2563EB;
+}
+
+/* 3. Ivory Press Theme */
+[data-theme="ivory-press"] {
+  --background: #FFFAF0;
+  --foreground: #43302B;
+  --color-brand-light: #FDF5E6;
+  --color-brand-muted: #EADDCD;
+  --color-brand-primary: #D4A373;
+  --color-brand-dark: #3E2723;
+  --color-brand-action: #D32F2F;
+}
+
+/* 4. Sage Calm Theme */
+[data-theme="sage-calm"] {
+  --background: #F4F5F0;
+  --foreground: #2F3E2F;
+  --color-brand-light: #E8ECE1;
+  --color-brand-muted: #C5CEC5;
+  --color-brand-primary: #8DA38D;
+  --color-brand-dark: #1B261B;
+  --color-brand-action: #4CAF50;
+}
+
+/* 5. Indigo Night Theme (Dark Mode Variant) */
+[data-theme="indigo-night"] {
+  --background: #0B0F19;
+  --foreground: #E2E8F0;
+  --color-brand-light: #1E293B;
+  --color-brand-muted: #334155;
+  --color-brand-primary: #6366F1;
+  --color-brand-dark: #050812; 
+  --color-brand-action: #818CF8;
+}
+
+/* 6. Graphite Theme (Dark Mode Variant) */
+[data-theme="graphite"] {
+  --background: #121212;
+  --foreground: #E0E0E0;
+  --color-brand-light: #2A2A2A;
+  --color-brand-muted: #424242;
+  --color-brand-primary: #9E9E9E;
+  --color-brand-dark: #000000; 
+  --color-brand-action: #BDBDBD;
+}
+
+/* Tailwind v4 setup */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  --color-brand-light: var(--color-brand-light);
+  --color-brand-muted: var(--color-brand-muted);
+  --color-brand-primary: var(--color-brand-primary);
+  --color-brand-dark: var(--color-brand-dark);
+  --color-brand-action: var(--color-brand-action);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.4s ease, color 0.4s ease; 
+}
+
+/* Custom Animation for Dropdowns */
+@keyframes fade-in-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-down {
+  animation: fade-in-down 0.3s ease-out forwards;
+}
