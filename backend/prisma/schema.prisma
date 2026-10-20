@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================= ENUMS =================
+enum Role {
+  ADMIN
+  DONOR
+  BENEFICIARY
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum RequestCategory {
+  TUITION
+  HOSTEL
+  MEDICAL
+  TRANSPORT
+}
+
+enum RequestStatus {
+  PENDING
+  UNDER_REVIEW
+  MORE_INFORMATION_REQUIRED
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum CampaignStatus {
+  ACTIVE
+  COMPLETED
+  CLOSED
+}
+
+enum UrgencyTag {
+  NORMAL
+  URGENT
+}
+
+enum DonationStatus {
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+}
+
+enum DocType {
+  CNIC
+  CNIC_FRONT // Naya add kiya
+  CNIC_BACK // Naya add kiya
+  STUDENT_CARD
+  INCOME_PROOF
+  FEE_VOUCHER
+  UTILIZATION_PROOF
+}
+
+// ================= TABLES =================
+model User {
+  id              String   @id @default(uuid())
+  name            String
+  email           String   @unique
+  passwordHash    String
+  role            Role
+  isEmailVerified Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  beneficiaryProfile BeneficiaryProfile?
+  donations          Donation[]
+  notifications      Notification[]
+  sentMessages       RequestMessage[]
+}
+
+model BeneficiaryProfile {
+  id                 String              @id @default(uuid())
+  userId             String              @unique
+  user               User                @relation(fields: [userId], references: [id])
+  regNumber          String
+  department         String
+  semester           String
+  cgpa               String
+  cnicNumber         String              @unique
+  guardianName       String
+  guardianOccupation String
+  guardianIncome     String
+  verificationStatus VerificationStatus  @default(PENDING)
+  sentMessages       RequestMessage[]
+  requests           AssistanceRequest[]
+  documents          Document[]
+}
+
+model AssistanceRequest {
+  id              String             @id @default(uuid())
+  beneficiaryId   String
+  beneficiary     BeneficiaryProfile @relation(fields: [beneficiaryId], references: [id])
+  category        RequestCategory
+  requestedAmount Float
+  description     String
+  status          RequestStatus      @default(PENDING)
+  submittedAt     DateTime           @default(now())
+  accountDetails  String?
+  campaign        Campaign?
+  documents       Document[]
+  adminReason     String? // Accept, Reject ya More Info ka reason
+  messages        RequestMessage[] // Chat/Messages ke liye relation
+}
+
+model Campaign {
+  id                String            @id @default(uuid())
+  requestId         String            @unique
+  request           AssistanceRequest @relation(fields: [requestId], references: [id])
+  title             String
+  description       String
+  targetAmount      Float
+  collectedAmount   Float             @default(0.0)
+  deadline          DateTime
+  urgencyTag        UrgencyTag        @default(NORMAL)
+  status            CampaignStatus    @default(ACTIVE)
+  disbursementProof String?
+  donations         Donation[]
+}
+
+model Donation {
+  id                   String         @id @default(uuid())
+  donorId              String
+  donor                User           @relation(fields: [donorId], references: [id])
+  campaignId           String
+  campaign             Campaign       @relation(fields: [campaignId], references: [id])
+  amount               Float
+  receiptUrl           String
+  status               DonationStatus @default(PENDING_VERIFICATION)
+  transactionReference String?
+  donatedAt            DateTime       @default(now())
+}
+
+model Document {
+  id            String              @id @default(uuid())
+  beneficiaryId String?
+  beneficiary   BeneficiaryProfile? @relation(fields: [beneficiaryId], references: [id])
+  requestId     String?
+  request       AssistanceRequest?  @relation(fields: [requestId], references: [id])
+  docType       DocType
+  fileUrl       String
+  fileName      String
+  uploadedAt    DateTime            @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String // Jisko notification bhejna hai (User ID)
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ================= CHAT / MESSAGING TABLE =================
+model RequestMessage {
+  id                   String              @id @default(uuid())
+  requestId            String
+  request              AssistanceRequest   @relation(fields: [requestId], references: [id])
+  senderId             String
+  sender               User                @relation(fields: [senderId], references: [id])
+  message              String
+  fileUrl              String? // Agar chat mein mazeed document bhejna ho
+  createdAt            DateTime            @default(now())
+  BeneficiaryProfile   BeneficiaryProfile? @relation(fields: [beneficiaryProfileId], references: [id])
+  beneficiaryProfileId String?
+}
